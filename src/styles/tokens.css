@@ -1,0 +1,27 @@
+@theme {
+  /* Brand */
+  --color-brand:       #2563EB;
+  --color-brand-hover: #1D4ED8;
+  --color-brand-light: #3B82F6;
+  --color-brand-muted: #1E3A6E;
+
+  /* Surfaces */
+  --color-surface-base:     #0F1B2D;
+  --color-surface-card:     #1A2E4A;
+  --color-surface-elevated: #243B55;
+  --color-surface-border:   #2D4A6B;
+
+  /* Content */
+  --color-content-primary:   #F0F4FF;
+  --color-content-secondary: #94A3B8;
+  --color-content-muted:     #64748B;
+
+  /* Feedback */
+  --color-feedback-error:   #EF4444;
+  --color-feedback-success: #10B981;
+  --color-feedback-warning: #F59E0B;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
