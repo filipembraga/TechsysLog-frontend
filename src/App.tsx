@@ -4,8 +4,8 @@ import { Toaster } from 'sonner'
 import { RegisterPage } from './pages/RegisterPage'
 import { useAuth } from './context/AuthContext'
 import type { ReactNode } from 'react'
-import { DashboardPage } from './pages/DashboardPage'
 import { AppLayout } from './components/layout/AppLayout'
+import { OrdersPage } from './pages/OrdersPage'
 
 export function App() {
   return (
@@ -14,7 +14,7 @@ export function App() {
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/" element={<OrdersPage />}/>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

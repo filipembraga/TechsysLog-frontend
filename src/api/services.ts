@@ -1,3 +1,4 @@
+import type { Order } from '@/types'
 import { apiClient } from './client'
 
 export const authService = {
@@ -8,6 +9,18 @@ export const authService = {
 
   register: async (name: string, email: string, password: string) => {
     const { data } = await apiClient.post('/api/Auth/register', { name, email, password })
+    return data
+  },
+}
+
+export const ordersService = {
+  getAll: async (): Promise<Order[]> => {
+    const { data } = await apiClient.get('/api/Orders')
+    return data
+  },
+
+  getById: async (id: string): Promise<Order> => {
+    const { data } = await apiClient.get(`/api/Orders/${id}`)
     return data
   },
 }
