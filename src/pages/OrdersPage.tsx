@@ -53,14 +53,14 @@ export function OrdersPage() {
                             <th className="text-left px-4 py-3 text-content-muted font-medium">Location</th>
                             <th className="text-left px-4 py-3 text-content-muted font-medium">Status</th>
                             <th className="text-left px-4 py-3 text-content-muted font-medium">Created</th>
-                            <th className="px-4 py-3" />
                         </tr>
                     </thead>
                     <tbody>
                         {orders.map((order: Order) => (
                             <tr
                                 key={order.id}
-                                className="border-b border-surface-border last:border-0 hover:bg-surface-elevated transition-colors"
+                                onClick={() => navigate(`/orders/${order.id}`)}
+                                className="border-b border-surface-border last:border-0 hover:bg-surface-elevated transition-colors cursor-pointer"
                             >
                                 <td className="px-4 py-3 font-mono text-brand-light">{order.orderNumber}</td>
                                 <td className="px-4 py-3 text-content-primary">{order.description || '—'}</td>
@@ -77,14 +77,6 @@ export function OrdersPage() {
                                 </td>
                                 <td className="px-4 py-3 text-content-secondary">
                                     {new Date(order.createdAt).toLocaleDateString('pt-BR')}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => navigate(`/orders/${order.id}`)}
-                                    >
-                                        View
-                                    </Button>
                                 </td>
                             </tr>
                         ))}
