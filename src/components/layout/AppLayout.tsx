@@ -31,8 +31,8 @@ export function AppLayout() {
     }
 
     return (
-        <div className="h-screen flex flex-row">
-            <aside className="bg-surface-elevated w-56 h-full flex flex-col py-4">
+        <div className="h-screen flex flex-row overflow-hidden">
+            <aside className="bg-surface-elevated w-56 h-screen flex flex-col py-4 sticky shrink-0">
 
                 <div className="flex flex-col gap-6">
                     <span className="text-content-primary font-mono font-bold text-lg px-3">
@@ -58,7 +58,7 @@ export function AppLayout() {
                                 <NavLink
                                     to="/notifications"
                                     className={({ isActive }) =>
-                                        `flex items-center justify-between px-3 py-2 rounded text-sm transition-colors cursor-pointer ${isActive
+                                        `flex items-center justify-between min-w-0 px-3 py-2 rounded text-sm transition-colors cursor-pointer ${isActive
                                             ? 'text-brand-light bg-brand-muted'
                                             : 'text-content-secondary hover:text-content-primary hover:bg-surface-border'
                                         }`
@@ -66,7 +66,7 @@ export function AppLayout() {
                                 >
                                     {t('notifications.title')}
                                     {unreadCount > 0 && (
-                                        <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${badgeUrgent
+                                        <span className={`shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded-full ${badgeUrgent
                                                 ? 'bg-feedback-error text-white'
                                                 : 'bg-brand-light text-white'
                                             }`}>
@@ -90,7 +90,7 @@ export function AppLayout() {
                     </Button>
                 </div>
             </aside>
-            <main className="flex-1">
+            <main className="flex-1 overflow-y-auto">
                 <Outlet />
             </main>
         </div >
