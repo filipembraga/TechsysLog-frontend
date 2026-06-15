@@ -19,7 +19,7 @@ export const orderSchema = z.object({
   number: z.string().min(1, 'validation.required'),
   neighborhood: z.string().min(1, 'validation.required'),
   city: z.string().min(1, 'validation.required'),
-  state: z.string().length(2, 'validation.stateLength'),
+  state: z.string().regex(/^[A-Za-z]{2}$/, 'validation.stateLength'),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>

@@ -26,3 +26,12 @@ export interface Order {
   userId: string
   createdAt: string
 }
+
+export interface AppNotification {
+  id: string
+  message: string
+  orderId: string
+  isRead: boolean
+  createdAt: string
+  readAt: string | null
+}

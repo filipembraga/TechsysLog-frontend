@@ -7,7 +7,7 @@ import { type ReactNode } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { OrdersPage } from './pages/OrdersPage'
 import { NewOrderPage } from './pages/NewOrderPage'
-import { OrderDetailPage } from './pages/OrderDetail'
+import { OrderDetailPage } from './pages/OrderDetailPage'
 import { useTranslation } from 'react-i18next'
 
 export function App() {
