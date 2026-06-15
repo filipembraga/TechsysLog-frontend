@@ -3,9 +3,24 @@ import { Button } from "../ui/Button"
 import { useAuth } from "@/context/AuthContext"
 import { useTranslation } from "react-i18next"
 import { useSignalR } from "@/hooks/useSignalR"
+import { queryKeys } from "@/lib/queryClient"
+import { notificationsService } from "@/api/services"
+import { useQuery } from "@tanstack/react-query"
+
+const BADGE_LIMIT = 9
 
 export function AppLayout() {
     useSignalR()
+
+    const { data: unread = [] } = useQuery({
+        queryKey: queryKeys.notifications.unread,
+        queryFn: notificationsService.getUnread,
+    })
+
+    const unreadCount = unread.length
+    const badgeLabel = unreadCount > BADGE_LIMIT ? `${BADGE_LIMIT}+` : String(unreadCount)
+    const badgeUrgent = unreadCount > BADGE_LIMIT
+
     const { t } = useTranslation()
     const { logout, user } = useAuth()
     const navigate = useNavigate()
@@ -43,13 +58,21 @@ export function AppLayout() {
                                 <NavLink
                                     to="/notifications"
                                     className={({ isActive }) =>
-                                        `flex items-center px-3 py-2 rounded text-sm transition-colors cursor-pointer ${isActive
+                                        `flex items-center justify-between px-3 py-2 rounded text-sm transition-colors cursor-pointer ${isActive
                                             ? 'text-brand-light bg-brand-muted'
                                             : 'text-content-secondary hover:text-content-primary hover:bg-surface-border'
                                         }`
                                     }
                                 >
                                     {t('notifications.title')}
+                                    {unreadCount > 0 && (
+                                        <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${badgeUrgent
+                                                ? 'bg-feedback-error text-white'
+                                                : 'bg-brand-light text-white'
+                                            }`}>
+                                            {badgeLabel}
+                                        </span>
+                                    )}
                                 </NavLink>
                             </li>
                         </ul>
