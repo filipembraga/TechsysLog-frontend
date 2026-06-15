@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext'
 import type { ReactNode } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { OrdersPage } from './pages/OrdersPage'
+import { NewOrderPage } from './pages/NewOrderPage'
 
 export function App() {
   return (
@@ -15,6 +16,7 @@ export function App() {
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/" element={<OrdersPage />}/>
+          <Route path="/orders/new" element={<NewOrderPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
