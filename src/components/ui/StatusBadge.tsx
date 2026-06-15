@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next'
 import { ORDER_STATUS } from '@/constants/orderStatus'
+import type { OrderStatus } from '@/types'
 
 interface StatusBadgeProps {
-  status: number
+  status: OrderStatus
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
   const { t }    = useTranslation()
-  const config   = ORDER_STATUS[status as keyof typeof ORDER_STATUS]
+  const config = ORDER_STATUS[status]
 
   if (!config) return null
 

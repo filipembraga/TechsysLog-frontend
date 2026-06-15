@@ -1,11 +1,22 @@
+// Enums
+
 export const OrderStatus = {
-  Pending:   0,
-  Shipped:   1,
-  Delivered: 2,
-  Cancelled: 3,
+  Pending:   'Pending',
+  Shipped:   'Shipped',
+  Delivered: 'Delivered',
+  Cancelled: 'Cancelled',
 } as const
 
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus]
+
+export const NotificationType = {
+  OrderRegistered: 'OrderRegistered',
+  OrderDelivered:  'OrderDelivered',
+} as const
+
+export type NotificationType = typeof NotificationType[keyof typeof NotificationType]
+
+// Domain 
 
 export interface Address {
   zipCode: string
@@ -31,6 +42,7 @@ export interface AppNotification {
   id: string
   message: string
   orderId: string
+  type: NotificationType
   isRead: boolean
   createdAt: string
   readAt: string | null

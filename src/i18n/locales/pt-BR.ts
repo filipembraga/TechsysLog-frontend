@@ -59,6 +59,9 @@ export default {
     title: 'Notificações',
     markAsRead: 'Marcar como lida',
     noData: 'Nenhuma notificação ainda.',
+    orderRegistered: 'Novo pedido registrado.',
+    orderDelivered: 'Pedido entregue.',
+    connectionError: 'Erro de conexão. Recarregue a página.',
   },
   status: {
     pending: 'Pendente',

@@ -59,6 +59,9 @@ export default {
     title: 'Notifications',
     markAsRead: 'Mark as read',
     noData: 'No notifications yet.',
+    orderRegistered: 'New order registered.',
+    orderDelivered: 'Order delivered.',
+    connectionError: 'Connection error. Refresh to try again.',
   },
   status: {
     pending: 'Pending',

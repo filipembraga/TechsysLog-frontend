@@ -2,8 +2,10 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { Button } from "../ui/Button"
 import { useAuth } from "@/context/AuthContext"
 import { useTranslation } from "react-i18next"
+import { useSignalR } from "@/hooks/useSignalR"
 
 export function AppLayout() {
+    useSignalR()
     const { t } = useTranslation()
     const { logout, user } = useAuth()
     const navigate = useNavigate()
