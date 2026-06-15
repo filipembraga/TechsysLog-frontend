@@ -6,10 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { authService } from "@/api/services";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 
 export function RegisterPage() {
-
+    const { t } = useTranslation()
     const navigate = useNavigate();
 
     const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -19,11 +20,11 @@ export function RegisterPage() {
     const mutation = useMutation({
         mutationFn: (data: RegisterFormData) => authService.register(data.name, data.email, data.password),
         onSuccess: () => {
-            toast.success('Registration successful. Please log in.')
+            toast.success(t('auth.registerSuccess'))
             navigate('/login')
         },
-        onError: (error) => {
-            toast.error(error.message || 'Registration failed')
+        onError: () => {
+            toast.error(t('auth.registerError'))
         },
     })
 
@@ -39,31 +40,32 @@ export function RegisterPage() {
 
                 <div className="bg-surface-card border border-surface-border rounded-lg p-8">
                     <h1 className="text-lg font-semibold text-content-primary mb-6">
-                        Register
+                        {t('auth.register')}
                     </h1>
 
                     <form
                         onSubmit={handleSubmit((data) => mutation.mutate(data))}
+                        noValidate
                         className="flex flex-col gap-4"
                     >
                         <Input
-                            label="Name"
+                            label={t('auth.name')}
                             type="text"
-                            placeholder="Your name"
+                            placeholder={t('auth.namePlaceholder')}
                             error={errors.name?.message}
                             {...register('name')}
                         />
                         <Input
-                            label="Email"
+                            label={t('auth.email')}
                             type="email"
-                            placeholder="you@example.com"
+                            placeholder={t('auth.emailPlaceholder')}
                             error={errors.email?.message}
                             {...register('email')}
                         />
                         <Input
-                            label="Password"
+                            label={t('auth.password')}
                             type="password"
-                            placeholder="••••••••"
+                            placeholder={t('auth.passwordPlaceholder')}
                             error={errors.password?.message}
                             {...register('password')}
                         />
@@ -72,14 +74,14 @@ export function RegisterPage() {
                             className="w-full mt-2"
                             loading={mutation.isPending}
                         >
-                            Register
+                            {t('auth.register')}
                         </Button>
                     </form>
 
                     <p className="text-center text-sm text-content-muted mt-6">
-                        Already have an account?{' '}
+                        {t('auth.alreadyHaveAccount')}{' '}
                         <Link to="/login" className="text-brand-light hover:underline">
-                            Sign in
+                            {t('auth.signIn')}
                         </Link>
                     </p>
                 </div>

@@ -9,9 +9,10 @@ import { toast } from 'sonner'
 import { authService } from '@/api/services'
 import { useAuth } from '@/context/AuthContext'
 import { loginSchema, type LoginFormData } from '@/lib/schemas'
+import { useTranslation } from 'react-i18next'
 
 export function LoginPage() {
-
+    const { t } = useTranslation()
     const { login } = useAuth()
     const navigate = useNavigate()
 
@@ -27,11 +28,11 @@ export function LoginPage() {
                 name: response.user.name,
                 email: response.user.email,
             })
-            toast.success('Login successful')
+            toast.success(t('auth.loginSuccess'))
             navigate('/')
         },
         onError: () => {
-            toast.error('Invalid email or password')
+            toast.error(t('auth.loginError'))
         },
     })
 
@@ -47,24 +48,25 @@ export function LoginPage() {
 
                 <div className="bg-surface-card border border-surface-border rounded-lg p-8">
                     <h1 className="text-lg font-semibold text-content-primary mb-6">
-                        Sign in
+                        {t('auth.signIn')}
                     </h1>
 
                     <form
                         onSubmit={handleSubmit((data) => mutation.mutate(data))}
+                        noValidate
                         className="flex flex-col gap-4"
                     >
                         <Input
-                            label="Email"
+                            label={t('auth.email')}
                             type="email"
-                            placeholder="you@example.com"
+                            placeholder={t('auth.emailPlaceholder')}
                             error={errors.email?.message}
                             {...register('email')}
                         />
                         <Input
-                            label="Password"
+                            label={t('auth.password')}
                             type="password"
-                            placeholder="••••••••"
+                            placeholder={t('auth.passwordPlaceholder')}
                             error={errors.password?.message}
                             {...register('password')}
                         />
@@ -73,14 +75,14 @@ export function LoginPage() {
                             className="w-full mt-2"
                             loading={mutation.isPending}
                         >
-                            Sign in
+                            {t('auth.signIn')}
                         </Button>
                     </form>
 
                     <p className="text-center text-sm text-content-muted mt-6">
-                        Don't have an account?{' '}
+                        {t('auth.noAccount')} 
                         <Link to="/register" className="text-brand-light hover:underline">
-                            Register
+                            {t('auth.register')}
                         </Link>
                     </p>
                 </div>

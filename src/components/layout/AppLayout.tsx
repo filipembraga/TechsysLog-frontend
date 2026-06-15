@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { Button } from "../ui/Button"
 import { useAuth } from "@/context/AuthContext"
+import { useTranslation } from "react-i18next"
 
 export function AppLayout() {
-
+    const { t } = useTranslation()
     const { logout, user } = useAuth()
     const navigate = useNavigate()
 
@@ -33,7 +34,7 @@ export function AppLayout() {
                                         }`
                                     }
                                 >
-                                    Orders
+                                    {t('orders.title')}
                                 </NavLink>
                             </li>
                             <li>
@@ -46,7 +47,7 @@ export function AppLayout() {
                                         }`
                                     }
                                 >
-                                    Notifications
+                                    {t('notifications.title')}
                                 </NavLink>
                             </li>
                         </ul>
@@ -60,7 +61,7 @@ export function AppLayout() {
                         onClick={handleLogout}
                         className="w-full justify-start text-feedback-error hover:text-red-400 px-3"
                     >
-                        Logout
+                        {t('common.logout')}
                     </Button>
                 </div>
             </aside>

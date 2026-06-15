@@ -1,5 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { clsx } from 'clsx'
+import { useTranslation } from 'react-i18next'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -10,6 +11,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, hint, className, id, ...props }, ref) => {
 
+    const { t } = useTranslation()
     // Generates an id from label if not explicitly provided
     // Required to associate <label> with <input> via htmlFor
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
@@ -43,7 +45,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         />
 
         {error && (
-          <p className="text-xs text-feedback-error">{error}</p>
+          <p className="text-xs text-feedback-error">{t(error)}</p>
         )}
 
         {hint && !error && (

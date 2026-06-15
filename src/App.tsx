@@ -3,10 +3,12 @@ import { LoginPage } from '@/pages/LoginPage'
 import { Toaster } from 'sonner'
 import { RegisterPage } from './pages/RegisterPage'
 import { useAuth } from './context/AuthContext'
-import type { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { OrdersPage } from './pages/OrdersPage'
 import { NewOrderPage } from './pages/NewOrderPage'
+import { OrderDetailPage } from './pages/OrderDetail'
+import { useTranslation } from 'react-i18next'
 
 export function App() {
   return (
@@ -17,6 +19,7 @@ export function App() {
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/" element={<OrdersPage />}/>
           <Route path="/orders/new" element={<NewOrderPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
@@ -27,9 +30,10 @@ export function App() {
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { token, isLoaded } = useAuth()
+  const { t } = useTranslation()
 
   if (!isLoaded) {
-    return <div>Loading...</div>
+    return <div>{t('common.loading')}</div>
   }
   if (!token) {
     return <Navigate to="/login" replace />
@@ -39,9 +43,10 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
 function PublicRoute({ children }: { children: ReactNode }) {
   const { token, isLoaded } = useAuth()
+  const { t } = useTranslation()
 
   if (!isLoaded) {
-    return <div>Loading...</div>
+    return <div>{t('common.loading')}</div>
   }
   if (token) {
     return <Navigate to="/" replace />

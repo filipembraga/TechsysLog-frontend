@@ -1,25 +1,42 @@
 @theme {
   /* Brand */
-  --color-brand:       #2563EB;
+  --color-brand: #2563EB;
   --color-brand-hover: #1D4ED8;
   --color-brand-light: #3B82F6;
   --color-brand-muted: #1E3A6E;
 
   /* Surfaces */
-  --color-surface-base:     #0F1B2D;
-  --color-surface-card:     #1A2E4A;
+  --color-surface-base: #0F1B2D;
+  --color-surface-card: #1A2E4A;
   --color-surface-elevated: #243B55;
-  --color-surface-border:   #2D4A6B;
+  --color-surface-border: #2D4A6B;
 
   /* Content */
-  --color-content-primary:   #F0F4FF;
+  --color-content-primary: #F0F4FF;
   --color-content-secondary: #94A3B8;
-  --color-content-muted:     #64748B;
+  --color-content-muted: #64748B;
 
   /* Feedback */
-  --color-feedback-error:   #EF4444;
+  --color-feedback-error: #EF4444;
   --color-feedback-success: #10B981;
   --color-feedback-warning: #F59E0B;
+
+  /* Order status */
+  --color-status-pending: #F59E0B;
+  --color-status-pending-bg: #2D2208;
+  --color-status-pending-text: #FCD34D;
+
+  --color-status-shipped: #3B82F6;
+  --color-status-shipped-bg: #0C1E3D;
+  --color-status-shipped-text: #93C5FD;
+
+  --color-status-delivered: #10B981;
+  --color-status-delivered-bg: #062316;
+  --color-status-delivered-text: #6EE7B7;
+
+  --color-status-cancelled: #EF4444;
+  --color-status-cancelled-bg: #2D0C0C;
+  --color-status-cancelled-text: #FCA5A5;
 
   /* Typography */
   --font-sans: 'Inter', system-ui, sans-serif;

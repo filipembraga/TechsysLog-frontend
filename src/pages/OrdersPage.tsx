@@ -1,25 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { ordersService } from '@/api/services'
 import { queryKeys } from '@/lib/queryClient'
-import { OrderStatus, type Order } from '@/types'
+import { type Order } from '@/types'
 import { Button } from '@/components/ui'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-const STATUS_LABEL: Record<number, string> = {
-    [OrderStatus.Pending]: 'Pending',
-    [OrderStatus.Shipped]: 'Shipped',
-    [OrderStatus.Delivered]: 'Delivered',
-    [OrderStatus.Cancelled]: 'Cancelled',
-}
-
-const STATUS_COLOR: Record<number, string> = {
-    [OrderStatus.Pending]: 'text-status-pending',
-    [OrderStatus.Shipped]: 'text-status-shipped',
-    [OrderStatus.Delivered]: 'text-status-delivered',
-    [OrderStatus.Cancelled]: 'text-status-cancelled',
-}
+import { StatusBadge } from '@/components/ui'
 
 export function OrdersPage() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
 
     const { data: orders = [], isLoading } = useQuery({
@@ -28,31 +18,29 @@ export function OrdersPage() {
     })
 
     if (isLoading) {
-        return <p className="text-content-secondary p-8">Loading...</p>
+        return <p className="text-content-secondary p-8">{t('common.loading')}</p>
     }
 
     return (
         <div className="p-8">
 
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-xl font-semibold text-content-primary">Orders</h1>
+                <h1 className="text-xl font-semibold text-content-primary">{t('orders.title')}</h1>
                 <Button onClick={() => navigate('/orders/new')}>
-                    New Order
+                    {t('orders.newOrder')}
                 </Button>
             </div>
 
-            {/* Table */}
             <div className="bg-surface-card border border-surface-border rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-surface-border">
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Order #</th>
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Description</th>
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Amount</th>
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Location</th>
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Status</th>
-                            <th className="text-left px-4 py-3 text-content-muted font-medium">Created</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.orderNumber')}</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.description')}</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.amount')}</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.location')}</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.status')}</th>
+                            <th className="text-left px-4 py-3 text-content-muted font-medium">{t('orders.created')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,8 +60,8 @@ export function OrdersPage() {
                                         ? `${order.deliveryAddress.city} / ${order.deliveryAddress.state}`
                                         : '—'}
                                 </td>
-                                <td className={`px-4 py-3 font-medium ${STATUS_COLOR[order.status]}`}>
-                                    {STATUS_LABEL[order.status]}
+                                <td className={`px-4 py-3 font-medium`}>
+                                    <StatusBadge status={order.status} />
                                 </td>
                                 <td className="px-4 py-3 text-content-secondary">
                                     {new Date(order.createdAt).toLocaleDateString('pt-BR')}
@@ -85,7 +73,7 @@ export function OrdersPage() {
 
                 {orders.length === 0 && (
                     <p className="text-center text-content-muted py-12">
-                        No orders found. Create your first order.
+                        {t('orders.notFound')}
                     </p>
                 )}
             </div>
