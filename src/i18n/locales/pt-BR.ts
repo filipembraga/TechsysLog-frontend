@@ -57,7 +57,7 @@ export default {
   },
   notifications: {
     title: 'Notificações',
-    markAsRead: 'Marcar como lida',
+    markAsRead: 'Lida em',
     noData: 'Nenhuma notificação ainda.',
     orderRegistered: 'Novo pedido registrado.',
     orderDelivered: 'Pedido entregue.',

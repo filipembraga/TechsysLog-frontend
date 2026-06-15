@@ -9,6 +9,7 @@ import { OrdersPage } from './pages/OrdersPage'
 import { NewOrderPage } from './pages/NewOrderPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { useTranslation } from 'react-i18next'
+import { NotificationsPage } from '@/pages/NotificationsPage'
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
           <Route path="/" element={<OrdersPage />}/>
           <Route path="/orders/new" element={<NewOrderPage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

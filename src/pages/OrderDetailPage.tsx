@@ -56,7 +56,7 @@ export function OrderDetailPage() {
                     <StatusBadge status={order.status} />
                 </div>
                 <div className="flex gap-3">
-                    <Button variant="secondary" onClick={() => navigate('/')}>
+                    <Button variant="secondary" onClick={() => navigate(-1)}>
                         {t('common.back')}
                     </Button>
                     {canDeliver && (

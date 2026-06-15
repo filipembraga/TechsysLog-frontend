@@ -57,7 +57,7 @@ export default {
   },
   notifications: {
     title: 'Notifications',
-    markAsRead: 'Mark as read',
+    markAsRead: 'Read at',
     noData: 'No notifications yet.',
     orderRegistered: 'New order registered.',
     orderDelivered: 'Order delivered.',
