@@ -4,7 +4,7 @@ Cliente web para o sistema de gerenciamento de pedidos e entregas da **TechsysLo
 
 > 🇬🇧 [English summary](#english-summary) available at the bottom of this document.
 
-> 🔗 **Backend:** [TechsysLog API](https://github.com/filipembraga/TechsysLog) — ASP.NET Core + MongoDB + SignalR
+> 🔗 **Backend:** [TechsysLog API](https://github.com/filipembraga/TechsysLog-api) — ASP.NET Core + MongoDB + SignalR
 
 ---
 
