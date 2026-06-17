@@ -7,7 +7,7 @@ export default {
     logout: 'Logout',
     actions: 'Ações',
     noData: 'Nenhum registro encontrado.',
-    notFound: 'Registro não encontrado.'
+    notFound: 'Registro não encontrado.',
   },
   auth: {
     login: 'Login',
@@ -74,7 +74,8 @@ export default {
     emailInvalid: 'E-mail inválido',
     nameMin: 'Mínimo 2 caracteres',
     passwordMin: 'Mínimo 6 caracteres',
-    zipCodeLength: 'CEP deve ter 8 dígitos',
+    zipCodeMin: 'CEP deve ter ao menos 4 caracteres',
+    zipCodeMax: 'CEP deve ter no máximo 10 caracteres',
     positiveNumber: 'Deve ser maior que zero',
     stateLength: 'Use a sigla com 2 letras',
   },

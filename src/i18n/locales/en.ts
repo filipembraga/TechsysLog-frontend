@@ -7,7 +7,7 @@ export default {
     logout: 'Logout',
     actions: 'Actions',
     noData: 'No records found.',
-    notFound: 'Record not found.'
+    notFound: 'Record not found.',
   },
   auth: {
     login: 'Login',
@@ -74,7 +74,8 @@ export default {
     emailInvalid: 'Invalid email',
     nameMin: 'Minimum 2 characters',
     passwordMin: 'Minimum 6 characters',
-    zipCodeLength: 'ZIP code must have 8 digits',
+    zipCodeMin: 'ZIP code must have at least 4 characters',
+    zipCodeMax: 'ZIP code must have at most 10 characters',
     positiveNumber: 'Must be greater than zero',
     stateLength: 'Use 2-letter state code',
   },

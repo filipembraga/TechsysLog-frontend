@@ -14,7 +14,7 @@ export const registerSchema = z.object({
 export const orderSchema = z.object({
   description: z.string().min(1, 'validation.required'),
   amount: z.number({ error: 'validation.required' }).positive('validation.positiveNumber'),
-  zipCode: z.string().length(8, 'validation.zipCodeLength'),
+  zipCode: z.string().min(4, 'validation.zipCodeMin').max(10, 'validation.zipCodeMax'),
   street: z.string().min(1, 'validation.required'),
   number: z.string().min(1, 'validation.required'),
   neighborhood: z.string().min(1, 'validation.required'),
