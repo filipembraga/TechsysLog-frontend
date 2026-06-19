@@ -11,44 +11,42 @@ import { useTranslation } from 'react-i18next'
 const HUB_URL = `${apiClient.defaults.baseURL}/hubs/notifications`
 
 const NOTIFICATION_I18N: Record<NotificationType, string> = {
-    [NotificationType.OrderRegistered]: 'notifications.orderRegistered',
-    [NotificationType.OrderDelivered]: 'notifications.orderDelivered',
+  [NotificationType.OrderRegistered]: 'notifications.orderRegistered',
+  [NotificationType.OrderDelivered]: 'notifications.orderDelivered',
 }
 
 export function useSignalR() {
-    const { token } = useAuth()
-    const queryClient = useQueryClient()
-    const { t } = useTranslation()
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
-    useEffect(() => {
-        if (!token) return
+  useEffect(() => {
+    if (!token) return
 
-        console.log('HUB_URL:', HUB_URL)
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {
+        // WebSockets don't support custom headers — token goes via query string factory
+        accessTokenFactory: () => token,
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build()
 
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl(HUB_URL, {
-                // WebSockets don't support custom headers — token goes via query string factory
-                accessTokenFactory: () => token,
-            })
-            .withAutomaticReconnect()
-            .configureLogging(signalR.LogLevel.Warning)
-            .build()
+    connection.on('ReceiveNotification', (notification: AppNotification) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
 
-        connection.on('ReceiveNotification', (notification: AppNotification) => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
-            queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
+      const i18nKey = NOTIFICATION_I18N[notification.type]
+      toast.info(t(i18nKey))
+    })
 
-            const i18nKey = NOTIFICATION_I18N[notification.type]
-            toast.info(t(i18nKey))
-        })
+    connection.start().catch(() => {
+      toast.error(t('notifications.connectionError'))
+    })
 
-        connection.start().catch(() => {
-            toast.error(t('notifications.connectionError'))
-        })
-
-        // Cleanup on unmount — closes connection on logout
-        return () => {
-            connection.stop()
-        }
-    }, [token, queryClient])
+    // Cleanup on unmount — closes connection on logout
+    return () => {
+      connection.stop()
+    }
+  }, [token, queryClient])
 }
