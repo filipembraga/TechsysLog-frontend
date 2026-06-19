@@ -43,6 +43,7 @@ Cliente web para o sistema de gerenciamento de pedidos e entregas da **TechsysLo
 | HTTP                | Axios com interceptors JWT                  |
 | Toasts              | Sonner                                      |
 | Ícones              | Lucide React                                |
+| Testes              | Vitest + React Testing Library              |
 
 ---
 
@@ -86,7 +87,7 @@ TanStack Query          useSignalR
      │                       │
      ▼                       │
  Axios Client          Invalida cache
-(interceptors JWT)          │
+(interceptors JWT)           │
      │                       │
      └───────────┬───────────┘
                  │
@@ -242,8 +243,10 @@ src/
 │   └── AuthContext.tsx    # token + user + isLoaded + login/logout
 │
 ├── hooks/
-│   ├── useViaCep.ts       # debounce 600ms + auto-fill de endereço
-│   └── useSignalR.ts      # conexão ao Hub + invalidação de cache + toast i18n
+│   ├── useViaCep.ts            # debounce 600ms + auto-fill de endereço
+│   ├── useViaCep.test.ts       # testes unitários — debounce, boundary, sucesso/falha
+│   ├── useSignalR.ts           # conexão ao Hub + invalidação de cache + toast i18n
+│   └── useSignalR.test.ts      # testes unitários — lifecycle, falha de conexão, notificação recebida
 │
 ├── i18n/
 │   ├── index.ts           # configuração — PT-BR padrão
@@ -303,6 +306,25 @@ npm run dev
 A aplicação estará disponível em `http://localhost:3000`.
 
 > O backend deve estar rodando em `https://localhost:7260`. A URL base está configurada em `src/api/client.ts`.
+
+## Testes
+
+### Executar
+
+```bash
+npm test
+```
+
+### Cobertura atual
+
+| Hook         | Cenários testados                                                                                                                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `useViaCep`  | CEP incompleto não dispara busca; debounce de 600ms (boundary test); retorno de endereço em busca bem-sucedida                                                                                         |
+| `useSignalR` | Sem token não cria conexão; conexão criada e iniciada com token válido; falha ao conectar exibe toast de erro; notificação recebida invalida queries e exibe toast; cleanup encerra conexão no unmount |
+
+Hooks foram escolhidos como alvo inicial de testes por concentrarem lógica de negócio isolada da UI — debounce, conexão WebSocket, invalidação de cache — sem exigir simulação de componentes visuais completos.
+
+Dependências externas (`fetch`, `@microsoft/signalr`, `@tanstack/react-query`, `sonner`, `react-i18next`) são mockadas via `vi.mock`, garantindo testes rápidos e independentes de rede ou infraestrutura real.
 
 ---
 
@@ -376,21 +398,10 @@ apiClient.interceptors.response.use(
 | **Exportação XLSX**                         | SheetJS disponível no ecossistema — melhoria futura                                                                        |
 | **Visão Admin**                             | Requer `role` no token JWT e guards de rota adicionais                                                                     |
 | **Dark mode toggle**                        | Sistema já é dark por padrão — toggle seria configuração por usuário                                                       |
-| **Testes automatizados**                    | Não implementados neste ciclo — Vitest + React Testing Library é o próximo passo natural                                   |
 
 ---
 
 ## Evolução Futura
-
-### Testes automatizados
-
-A arquitetura está preparada para adoção de testes sem refatoração:
-
-```bash
-npm install -D vitest @testing-library/react @testing-library/user-event jsdom
-```
-
-Hooks como `useSignalR` e `useViaCep` são isolados e testáveis com mocks. Serviços são funções puras que recebem e retornam dados tipados.
 
 ### Internacionalização de datas
 
