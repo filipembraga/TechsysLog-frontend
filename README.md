@@ -11,34 +11,38 @@ Cliente web para o sistema de gerenciamento de pedidos e entregas da **TechsysLo
 ## Telas
 
 ### Painel de Pedidos
+
 ![Painel de Pedidos](./docs/screenshots/orders.png)
 
 ### Notificações em Tempo Real
+
 ![Notificações](./docs/screenshots/notifications.png)
 
 ### Novo Pedido com Auto-preenchimento de Endereço
+
 ![Novo Pedido](./docs/screenshots/new-order.png)
 
 ### Detalhe do Pedido
+
 ![Detalhe do Pedido](./docs/screenshots/order-detail.png)
 
 ---
 
 ## Stack
 
-| Categoria | Tecnologia |
-|-----------|-----------|
-| Framework | React 18 + TypeScript |
-| Build | Vite |
-| Estilização | Tailwind CSS v4 com `@tailwindcss/vite` |
-| Roteamento | React Router v6 |
-| Estado assíncrono | TanStack Query v5 |
-| Formulários | React Hook Form + Zod |
-| Tempo real | `@microsoft/signalr` |
+| Categoria           | Tecnologia                                  |
+| ------------------- | ------------------------------------------- |
+| Framework           | React 18 + TypeScript                       |
+| Build               | Vite                                        |
+| Estilização         | Tailwind CSS v4 com `@tailwindcss/vite`     |
+| Roteamento          | React Router v6                             |
+| Estado assíncrono   | TanStack Query v5                           |
+| Formulários         | React Hook Form + Zod                       |
+| Tempo real          | `@microsoft/signalr`                        |
 | Internacionalização | react-i18next (PT-BR padrão, EN disponível) |
-| HTTP | Axios com interceptors JWT |
-| Toasts | Sonner |
-| Ícones | Lucide React |
+| HTTP                | Axios com interceptors JWT                  |
+| Toasts              | Sonner                                      |
+| Ícones              | Lucide React                                |
 
 ---
 
@@ -147,7 +151,7 @@ export const OrderStatus = {
   Cancelled: 'Cancelled',
 } as const
 
-export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus]
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 ```
 
 Isso garante type safety sem overhead de runtime e alinha diretamente com o contrato da API — o backend serializa enums como strings semânticas.
@@ -182,11 +186,11 @@ Nenhuma abstração foi criada sem uso imediato. Exemplos de decisões explícit
 
 O token JWT é armazenado em `localStorage` por limitação do backend do desafio, que não emite cookies `httpOnly`.
 
-| | `localStorage` (atual) | Cookie `httpOnly` (preferido em produção) |
-|---|---|---|
-| Vulnerabilidade | XSS pode ler o token | Inacessível via JavaScript |
-| CSRF | Não aplicável | Requer proteção `SameSite` |
-| Complexidade | Baixa | Requer backend com suporte a cookies |
+|                 | `localStorage` (atual) | Cookie `httpOnly` (preferido em produção) |
+| --------------- | ---------------------- | ----------------------------------------- |
+| Vulnerabilidade | XSS pode ler o token   | Inacessível via JavaScript                |
+| CSRF            | Não aplicável          | Requer proteção `SameSite`                |
+| Complexidade    | Baixa                  | Requer backend com suporte a cookies      |
 
 A alternativa correta em produção seria cookie `httpOnly` + `SameSite=Strict`, eliminando a exposição via XSS. Documentado como technical debt.
 
@@ -197,6 +201,20 @@ A alternativa correta em produção seria cookie `httpOnly` + `SameSite=Strict`,
 Hoje todas as notificações chegam a todos os clientes conectados. O filtro acontece no frontend — cada usuário vê apenas suas notificações ao consultar a API REST.
 
 O correto para escala seria SignalR Groups: o Hub adiciona cada conexão ao grupo do `userId` no handshake, e eventos são emitidos apenas para o grupo correto. Elimina tráfego desnecessário entre clientes.
+
+---
+
+### Internacionalização do CEP
+
+O frontend aceita qualquer formato de CEP (mínimo 4, máximo 10 caracteres). Se o valor digitado resultar em 8 dígitos após limpeza, a consulta ao ViaCEP é tentada automaticamente. Caso contrário, o campo é enviado ao backend como digitado — permitindo endereços internacionais sem bloqueio de formato.
+
+Um seletor de país com validação específica por região seria a evolução natural para um produto totalmente internacionalizado.
+
+---
+
+### CEP — Formato brasileiro vs. endereços internacionais
+
+O campo aceita qualquer formato. Antes do envio, o valor limpo terá exatamente 8 caracteres, caso esteja no padrão brasileiro (não numéricos são removidos conforme padrão brasileiro). Caso contrário, o valor original é preservado — respeitando formatos como `SW1A 1AA` ou `10001` sem alterações. O enriquecimento ViaCEP é tentado silenciosamente para CEPs brasileiros e ignorado para todos os outros.
 
 ---
 
@@ -291,12 +309,14 @@ A aplicação estará disponível em `http://localhost:3000`.
 ## Funcionalidades
 
 ### Autenticação
+
 - Cadastro e login com validação via Zod
 - Sessão persistida em `localStorage` com rehydration automática
 - Redirecionamento automático em rotas protegidas (`ProtectedRoute`) e públicas (`PublicRoute`)
 - Logout com limpeza de sessão e redirecionamento
 
 ### Pedidos
+
 - Listagem em tabela com `StatusBadge` semântico (ícone + cor + texto i18n)
 - Clique na linha navega para o detalhe do pedido
 - Criação com auto-preenchimento de endereço via **ViaCEP** (debounce 600ms)
@@ -304,6 +324,7 @@ A aplicação estará disponível em `http://localhost:3000`.
 - Registro de entrega diretamente na página de detalhe
 
 ### Notificações em Tempo Real
+
 - Conexão persistente com Hub SignalR via WebSocket
 - Token JWT enviado via `accessTokenFactory` (WebSockets não suportam headers customizados)
 - Reconexão automática com backoff exponencial (`withAutomaticReconnect`)
@@ -328,7 +349,7 @@ apiClient.interceptors.response.use(
   (error) => {
     Sentry.captureException(error) // uma linha, zero impacto na arquitetura
     // ...
-  }
+  },
 )
 ```
 
@@ -342,20 +363,20 @@ apiClient.interceptors.response.use(
 
 ## O que Ficou de Fora
 
-| Item | Motivo |
-|------|--------|
-| **Refresh token** | Backend não implementa — expiração tratada via `401` no interceptor. Technical debt documentado |
-| **Formatação de datas com locale dinâmico** | Requer `date-fns` + locale dinâmico vinculado ao i18n ativo. `toLocaleString('pt-BR')` como solução provisória |
-| **`orderNumber` nas notificações** | Payload atual tem `orderId` mas não o número legível. Exigiria mudança no contrato da API ou request extra por notificação |
-| **Toast de notificações configurável** | Hoje é global para todos os usuários. Configuração por usuário ou perfil é evolução natural |
-| **Busca e filtros de pedidos** | Não implementado — melhoria futura sem impacto na arquitetura atual |
-| **Paginação** | Não implementada dado o volume esperado no contexto do desafio |
-| **Cancelamento de pedido** | Requer modal de confirmação com cor `danger` — melhoria futura |
-| **Máscara de moeda** | `react-number-format` seria a lib adequada — YAGNI no escopo atual |
-| **Exportação XLSX** | SheetJS disponível no ecossistema — melhoria futura |
-| **Visão Admin** | Requer `role` no token JWT e guards de rota adicionais |
-| **Dark mode toggle** | Sistema já é dark por padrão — toggle seria configuração por usuário |
-| **Testes automatizados** | Não implementados neste ciclo — Vitest + React Testing Library é o próximo passo natural |
+| Item                                        | Motivo                                                                                                                     |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Refresh token**                           | Backend não implementa — expiração tratada via `401` no interceptor. Technical debt documentado                            |
+| **Formatação de datas com locale dinâmico** | Requer `date-fns` + locale dinâmico vinculado ao i18n ativo. `toLocaleString('pt-BR')` como solução provisória             |
+| **`orderNumber` nas notificações**          | Payload atual tem `orderId` mas não o número legível. Exigiria mudança no contrato da API ou request extra por notificação |
+| **Toast de notificações configurável**      | Hoje é global para todos os usuários. Configuração por usuário ou perfil é evolução natural                                |
+| **Busca e filtros de pedidos**              | Não implementado — melhoria futura sem impacto na arquitetura atual                                                        |
+| **Paginação**                               | Não implementada dado o volume esperado no contexto do desafio                                                             |
+| **Cancelamento de pedido**                  | Requer modal de confirmação com cor `danger` — melhoria futura                                                             |
+| **Máscara de moeda**                        | `react-number-format` seria a lib adequada — YAGNI no escopo atual                                                         |
+| **Exportação XLSX**                         | SheetJS disponível no ecossistema — melhoria futura                                                                        |
+| **Visão Admin**                             | Requer `role` no token JWT e guards de rota adicionais                                                                     |
+| **Dark mode toggle**                        | Sistema já é dark por padrão — toggle seria configuração por usuário                                                       |
+| **Testes automatizados**                    | Não implementados neste ciclo — Vitest + React Testing Library é o próximo passo natural                                   |
 
 ---
 
