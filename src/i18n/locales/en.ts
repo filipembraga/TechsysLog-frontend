@@ -54,6 +54,9 @@ export default {
     notFound: 'Order not found.',
     zipLookup: 'Looking up address...',
     zipNotFound: 'ZIP code not found',
+    searchPlaceholder: 'Search by order number, description, city or state...',
+    noSearchResults: 'No orders found for this search.',
+    allStatuses: 'All statuses',
   },
   notifications: {
     title: 'Notifications',

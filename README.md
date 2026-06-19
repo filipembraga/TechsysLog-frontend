@@ -344,6 +344,7 @@ Dependências externas (`fetch`, `@microsoft/signalr`, `@tanstack/react-query`, 
 - Criação com auto-preenchimento de endereço via **ViaCEP** (debounce 600ms)
 - Validação de formulário em tempo real com mensagens i18n
 - Registro de entrega diretamente na página de detalhe
+- Busca por número do pedido, descrição, cidade ou estado, combinada com filtro de status
 
 ### Notificações em Tempo Real
 
@@ -391,7 +392,6 @@ apiClient.interceptors.response.use(
 | **Formatação de datas com locale dinâmico** | Requer `date-fns` + locale dinâmico vinculado ao i18n ativo. `toLocaleString('pt-BR')` como solução provisória             |
 | **`orderNumber` nas notificações**          | Payload atual tem `orderId` mas não o número legível. Exigiria mudança no contrato da API ou request extra por notificação |
 | **Toast de notificações configurável**      | Hoje é global para todos os usuários. Configuração por usuário ou perfil é evolução natural                                |
-| **Busca e filtros de pedidos**              | Não implementado — melhoria futura sem impacto na arquitetura atual                                                        |
 | **Paginação**                               | Não implementada dado o volume esperado no contexto do desafio                                                             |
 | **Cancelamento de pedido**                  | Requer modal de confirmação com cor `danger` — melhoria futura                                                             |
 | **Máscara de moeda**                        | `react-number-format` seria a lib adequada — YAGNI no escopo atual                                                         |

@@ -54,6 +54,9 @@ export default {
     createSuccess: 'Pedido criado com sucesso',
     createError: 'Erro ao criar pedido',
     notFound: 'Pedido não encontrado.',
+    searchPlaceholder: 'Buscar por número do pedido, descrição, cidade ou estado...',
+    noSearchResults: 'Nenhum pedido encontrado para essa busca.',
+    allStatuses: 'Todos os status',
   },
   notifications: {
     title: 'Notificações',
