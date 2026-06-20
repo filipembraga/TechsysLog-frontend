@@ -29,8 +29,17 @@ apiClient.interceptors.response.use(
 
     if (isNetworkOrServerError) {
       console.error(`[${correlationId}]`, error)
+
       toast.error(t('errors.generic'), {
-        description: `Correlation ID: ${correlationId}`,
+        description: `ID: ${correlationId.slice(0, 8)}...`,
+        duration: Infinity,
+        action: {
+          label: t('errors.copyId'),
+          onClick: () => {
+            navigator.clipboard.writeText(correlationId)
+            toast.success(t('errors.copied'))
+          },
+        },
       })
     }
 

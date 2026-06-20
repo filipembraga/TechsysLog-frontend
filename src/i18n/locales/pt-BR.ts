@@ -11,6 +11,8 @@ export default {
   },
   errors: {
     generic: 'Algo deu errado. Tente novamente.',
+    copyId: 'Copiar ID',
+    copied: 'Copiado para a área de transferência',
   },
   auth: {
     login: 'Login',

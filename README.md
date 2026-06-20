@@ -171,6 +171,16 @@ O contador de notificações não lidas na sidebar usa limite de `9+` — padrã
 
 ---
 
+### Toast de erro com Correlation ID
+
+Erros de rede e `5xx` exibem um toast com o Correlation ID truncado (8 caracteres) em vez do UUID completo, evitando quebra de linha e priorizando legibilidade — o valor completo só é necessário para suporte, não para leitura visual imediata.
+
+O toast não expira por tempo (`duration: Infinity`), diferente do padrão dos demais toasts do app. A decisão evita que o operador perca o ID por timeout antes de copiá-lo: o fechamento passa a ser sempre intencional, via botão de copiar ou fechamento manual.
+
+A cópia usa `navigator.clipboard.writeText` sobre o UUID completo — nunca sobre a versão truncada exibida — seguido de um toast de confirmação com timeout padrão, já que essa segunda mensagem é só uma confirmação rápida, sem necessidade de permanência.
+
+---
+
 ### YAGNI
 
 Nenhuma abstração foi criada sem uso imediato. Exemplos de decisões explícitas:
@@ -224,7 +234,7 @@ O campo aceita qualquer formato. Antes do envio, o valor limpo terá exatamente 
 ```
 src/
 ├── api/
-│   ├── client.ts          # Axios + interceptors JWT + handler 401
+│   ├── client.ts          # Axios + interceptors JWT + Correlation ID + handler 401/5xx
 │   └── services.ts        # authService, ordersService, notificationsService
 │
 ├── components/
@@ -255,6 +265,7 @@ src/
 │       └── pt-BR.ts
 │
 ├── lib/
+│   ├── correlationId.ts   # gera UUID v4 por requisição (X-Correlation-Id)
 │   ├── queryClient.ts     # QueryClient + queryKeys centralizados
 │   └── schemas.ts         # loginSchema, registerSchema, orderSchema (Zod)
 │
@@ -361,26 +372,35 @@ Dependências externas (`fetch`, `@microsoft/signalr`, `@tanstack/react-query`, 
 
 ## Observabilidade
 
-Não implementada neste ciclo, mas a arquitetura está preparada para adoção sem refatoração de camadas.
+### Implementado
 
-**Erros de cliente** — o interceptor Axios centraliza todas as respostas de erro. Um serviço de monitoramento como **Sentry** ou **Application Insights** pode ser integrado em um único ponto:
+| Mecanismo                         | Implementação                                                                                                                                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Correlation ID**                | Cada requisição recebe um UUID v4 (`crypto.randomUUID()`) anexado ao header `X-Correlation-Id`, gerado no request interceptor do Axios e validado/ecoado pelo middleware já implementado no backend |
+| **Captura centralizada de erros** | O response interceptor do Axios intercepta erros de rede e respostas `5xx` em um único ponto — `4xx` de negócio (404, 401) seguem fluxo próprio, sem Correlation ID                                 |
+| **Feedback ao operador**          | Toast (Sonner) com o Correlation ID truncado (8 caracteres) e ação de copiar o UUID completo para a área de transferência — pensado para o operador referenciar o ID ao abrir um chamado de suporte |
+| **Logging local**                 | `console.error` com o Correlation ID como prefixo, permitindo cruzar rapidamente o erro exibido ao operador com o objeto de erro completo no DevTools                                               |
+
+A arquitetura está preparada para adoção sem refatoração de camadas adicionais:
+
+**Erros de cliente** — o branch de captura já existe no interceptor; um serviço de monitoramento como **Sentry** ou **Application Insights** se integra em uma única linha, dentro do mesmo bloco que já trata Correlation ID:
 
 ```typescript
-// src/api/client.ts — ponto único para captura de erros
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    Sentry.captureException(error) // uma linha, zero impacto na arquitetura
-    // ...
-  },
-)
+// src/api/client.ts — branch de erro já implementado
+if (isNetworkOrServerError) {
+  console.error(`[${correlationId}]`, error)
+  toast.error(t('errors.generic'), {
+    /* ... */
+  })
+  Sentry.captureException(error, { tags: { correlationId } }) // próximo passo — zero impacto na arquitetura
+}
 ```
 
 **Correlação REST + SignalR** — cada notificação recebida via SignalR carrega `id` e `orderId`, permitindo correlacionar eventos de tempo real com requisições REST no log centralizado.
 
 **OpenTelemetry** — instrumentação de frontend via `@opentelemetry/sdk-web` pode capturar traces de navegação, erros de rede e métricas de performance sem mudanças nos componentes.
 
-**Próximos passos recomendados:** Sentry para erros de cliente, Web Vitals para performance, e correlação de `X-Correlation-Id` entre requests REST e eventos SignalR para rastreabilidade end-to-end.
+**Próximos passos recomendados:** Sentry para erros de cliente e Web Vitals para performance.
 
 ---
 

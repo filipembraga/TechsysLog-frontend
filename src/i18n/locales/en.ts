@@ -11,6 +11,8 @@ export default {
   },
   errors: {
     generic: 'Something went wrong. Please try again.',
+    copyId: 'Copy ID',
+    copied: 'Copied to clipboard',
   },
   auth: {
     login: 'Login',
