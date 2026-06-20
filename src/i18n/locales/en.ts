@@ -9,6 +9,9 @@ export default {
     noData: 'No records found.',
     notFound: 'Record not found.',
   },
+  errors: {
+    generic: 'Something went wrong. Please try again.',
+  },
   auth: {
     login: 'Login',
     register: 'Register',

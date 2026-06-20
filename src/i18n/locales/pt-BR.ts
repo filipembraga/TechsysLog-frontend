@@ -9,6 +9,9 @@ export default {
     noData: 'Nenhum registro encontrado.',
     notFound: 'Registro não encontrado.',
   },
+  errors: {
+    generic: 'Algo deu errado. Tente novamente.',
+  },
   auth: {
     login: 'Login',
     register: 'Cadastrar',

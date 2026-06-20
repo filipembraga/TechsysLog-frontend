@@ -1,4 +1,7 @@
+import { generateCorrelationId } from '@/lib/correlationId'
 import axios from 'axios'
+import { t } from 'i18next'
+import { toast } from 'sonner'
 
 export const apiClient = axios.create({
   baseURL: 'https://localhost:7260',
@@ -6,6 +9,7 @@ export const apiClient = axios.create({
 })
 
 apiClient.interceptors.request.use((config) => {
+  config.headers['X-Correlation-Id'] = generateCorrelationId()
   const token = localStorage.getItem('techsyslog_token')
 
   if (token) {
@@ -19,6 +23,17 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const correlationId = error.response?.headers['x-correlation-id'] ?? error.config?.headers['X-Correlation-Id']
+
+    const isNetworkOrServerError = !error.response || error.response.status >= 500
+
+    if (isNetworkOrServerError) {
+      console.error(`[${correlationId}]`, error)
+      toast.error(t('errors.generic'), {
+        description: `Correlation ID: ${correlationId}`,
+      })
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem('techsyslog_token')
       localStorage.removeItem('techsyslog_user')
@@ -26,5 +41,5 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
