@@ -1,19 +1,29 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
 import { Toaster } from 'sonner'
 import { RegisterPage } from './pages/RegisterPage'
 import { useAuth } from './context/useAuth'
-import { type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { OrdersPage } from './pages/OrdersPage'
 import { NewOrderPage } from './pages/NewOrderPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { useTranslation } from 'react-i18next'
 import { NotificationsPage } from '@/pages/NotificationsPage'
+import { setNavigate } from './lib/navigation'
+
+function NavigationSetup() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    setNavigate(navigate)
+  }, [navigate])
+  return null
+}
 
 export function App() {
   return (
     <BrowserRouter>
+      <NavigationSetup />
       <Routes>
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
@@ -33,12 +43,13 @@ export function App() {
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { token, isLoaded } = useAuth()
   const { t } = useTranslation()
+  const location = useLocation()
 
   if (!isLoaded) {
     return <div>{t('common.loading')}</div>
   }
   if (!token) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
   return <>{children}</>
 }

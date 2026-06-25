@@ -1,4 +1,5 @@
 import { generateCorrelationId } from '@/lib/correlationId'
+import { navigateTo } from '@/lib/navigation'
 import { getAccessToken, setAccessToken } from '@/lib/tokenStore'
 import axios from 'axios'
 import { t } from 'i18next'
@@ -64,7 +65,7 @@ apiClient.interceptors.response.use(
       })
     }
 
-   const isAuthEndpoint = error.config?.url?.toLowerCase().includes('/api/auth/')
+    const isAuthEndpoint = error.config?.url?.toLowerCase().includes('/api/auth/')
 
     if (error.response?.status === 401 && !isAuthEndpoint) {
       try {
@@ -73,7 +74,7 @@ apiClient.interceptors.response.use(
         return apiClient.request(error.config)
       } catch {
         setAccessToken(null)
-        window.location.href = '/login'
+        navigateTo('/login', { state: { from: window.location.pathname } })
       }
     }
 
