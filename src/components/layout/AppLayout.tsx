@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/Button'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context/useAuth'
 import { useTranslation } from 'react-i18next'
 import { useSignalR } from '@/hooks/useSignalR'
 import { queryKeys } from '@/lib/queryClient'
@@ -26,8 +26,8 @@ export function AppLayout() {
   const { logout, user } = useAuth()
   const navigate = useNavigate()
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await logout()
     navigate('/login')
   }
 
@@ -88,7 +88,7 @@ export function AppLayout() {
           <span className="text-content-muted px-4 text-xs">{user?.name}</span>
           <Button
             variant="ghost"
-            onClick={handleLogout}
+            onClick={() => void handleLogout()}
             className="text-feedback-error w-full cursor-pointer justify-start px-4 text-base hover:text-red-400"
           >
             {t('common.logout')}
