@@ -1,77 +1,50 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-  type ReactNode
-} from 'react'
+import { authService } from '@/api/services'
+import { setAccessToken } from '@/lib/tokenStore'
+import type { LoginResponseDto, UserDto } from '@/types/dtos'
+import { useState, useCallback, useEffect, type ReactNode } from 'react'
+import { AuthContext } from './useAuth'
 
-interface AuthUser {
-  id: string
-  name: string
-  email: string
-}
-
-interface AuthContextValue {
-  user: AuthUser | null
-  token: string | null
-  isLoaded: boolean
-  login: (token: string, user: AuthUser) => void
-  logout: () => void
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null)
-
-const TOKEN_KEY = 'techsyslog_token'
-const USER_KEY  = 'techsyslog_user'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token,    setToken]    = useState<string | null>(null)
-  const [user,     setUser]     = useState<AuthUser | null>(null)
+  const [token, setToken] = useState<string | null>(null)
+  const [user, setUser] = useState<UserDto | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Rehydrate session from localStorage on first render
+  // Tries to restore the session via the refresh token cookie on first render.
+  // The access token never survives a reload — only the httpOnly cookie does.
   useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem(TOKEN_KEY)
-      const storedUser  = localStorage.getItem(USER_KEY)
-
-      if (storedToken && storedUser) {
-        setToken(storedToken)
-        setUser(JSON.parse(storedUser) as AuthUser)
-      }
-    } catch {
-      localStorage.removeItem(TOKEN_KEY)
-      localStorage.removeItem(USER_KEY)
-    } finally {
-      setIsLoaded(true)
-    }
+    authService
+      .refresh()
+      .then((data: LoginResponseDto) => {
+        setAccessToken(data.token)
+        setToken(data.token)
+        setUser(data.user)
+      })
+      .catch(() => {
+        setAccessToken(null)
+        setToken(null)
+        setUser(null)
+      })
+      .finally(() => {
+        setIsLoaded(true)
+      })
   }, [])
 
-  const login = useCallback((newToken: string, newUser: AuthUser) => {
-    localStorage.setItem(TOKEN_KEY, newToken)
-    localStorage.setItem(USER_KEY, JSON.stringify(newUser))
+  const login = useCallback((newToken: string, newUser: UserDto) => {
+    setAccessToken(newToken)
     setToken(newToken)
     setUser(newUser)
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-    setToken(null)
-    setUser(null)
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout()
+    } finally {
+      setAccessToken(null)
+      setToken(null)
+      setUser(null)
+    }
   }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, token, isLoaded, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
+  return <AuthContext.Provider value={{ user, token, isLoaded, login, logout }}>{children}</AuthContext.Provider>
 }

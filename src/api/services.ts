@@ -11,6 +11,15 @@ export const authService = {
     const { data } = await apiClient.post('/api/Auth/register', { name, email, password })
     return data
   },
+
+  refresh: async () => {
+    const { data } = await apiClient.post('/api/Auth/refresh')
+    return data
+  },
+
+  logout: async () => {
+    await apiClient.post('/api/Auth/logout')
+  },
 }
 
 export const ordersService = {

@@ -1,4 +1,4 @@
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context/useAuth'
 import { renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import { useSignalR } from './useSignalR'
