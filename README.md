@@ -6,6 +6,8 @@ Cliente web para o sistema de gerenciamento de pedidos e entregas da **TechsysLo
 
 > 🔗 **Backend:** [TechsysLog API](https://github.com/filipembraga/TechsysLog-api) — ASP.NET Core + MongoDB + SignalR
 
+> O servidor de desenvolvimento roda em HTTPS (`https://localhost:3000`) — necessário para o cookie de Refresh Token, que usa `SameSite=Strict` (ver Decisões de Arquitetura).
+
 ---
 
 ## Telas
@@ -132,11 +134,19 @@ Essa separação mantém o SignalR responsável apenas por sinalizar mudanças, 
 
 ---
 
-### Autenticação JWT
+### Autenticação — Access Token em memória + Refresh Token via cookie httpOnly
 
-O token JWT é armazenado em `localStorage` — technical debt documentado. O backend não implementa cookies `httpOnly`, o que seria a alternativa segura. A expiração é tratada via interceptor Axios: respostas `401` limpam o storage e redirecionam para `/login`.
+O Access Token vive só em memória (`src/lib/tokenStore.ts`, uma variável de módulo fora da árvore React) — nunca em `localStorage`, eliminando exposição a XSS. Ele é perdido a cada reload da página, de propósito: a sessão é restaurada via `POST /api/Auth/refresh`, chamado automaticamente no mount do `AuthProvider`, usando o cookie `httpOnly` que o navegador já envia sozinho.
 
-Sem refresh token — o usuário precisa fazer login novamente após a expiração. Documentado como melhoria futura.
+Quando uma requisição falha com `401`, o interceptor de resposta do Axios tenta renovar o token automaticamente antes de desistir — com deduplicação de chamadas simultâneas (uma `Promise` compartilhada em `client.ts`, evitando múltiplos `/refresh` paralelos se vários requests expirarem ao mesmo tempo). Se o refresh também falhar, a navegação para `/login` é feita via React Router (`src/lib/navigation.ts`, ponte fora da árvore React para `useNavigate`) — não `window.location.href` — preservando o estado da aplicação e a rota de origem (`location.state.from`), usada para retornar o usuário exatamente de onde saiu após logar novamente.
+
+`AuthContext` foi dividido em dois arquivos (`AuthContext.tsx` para o Provider, `useAuth.ts` para o hook de consumo) para satisfazer a regra do React Fast Refresh, que exige que um arquivo exportando componentes não exporte mais nada além disso.
+
+---
+
+### HTTPS em desenvolvimento — Schemeful Same-Site
+
+O cookie do Refresh Token usa `SameSite=Strict`. O Chrome trata origens com **esquemas diferentes** (`http` vs `https`) como cross-site mesmo no mesmo domínio (`localhost`) — Schemeful Same-Site — bloqueando silenciosamente o envio do cookie. O servidor de desenvolvimento do Vite roda em HTTPS (`@vitejs/plugin-basic-ssl`, `vite.config.ts`) para igualar o esquema do backend, preservando `SameSite=Strict` sem reduzir a proteção contra CSRF.
 
 ---
 
@@ -193,17 +203,9 @@ Nenhuma abstração foi criada sem uso imediato. Exemplos de decisões explícit
 
 ## Trade-offs
 
-### `localStorage` vs cookie `httpOnly`
+### `SameSite=Strict` vs `SameSite=None`
 
-O token JWT é armazenado em `localStorage` por limitação do backend do desafio, que não emite cookies `httpOnly`.
-
-|                 | `localStorage` (atual) | Cookie `httpOnly` (preferido em produção) |
-| --------------- | ---------------------- | ----------------------------------------- |
-| Vulnerabilidade | XSS pode ler o token   | Inacessível via JavaScript                |
-| CSRF            | Não aplicável          | Requer proteção `SameSite`                |
-| Complexidade    | Baixa                  | Requer backend com suporte a cookies      |
-
-A alternativa correta em produção seria cookie `httpOnly` + `SameSite=Strict`, eliminando a exposição via XSS. Documentado como technical debt.
+Com frontend e backend em esquemas diferentes (HTTP vs HTTPS), `SameSite=Strict` bloquearia o envio do cookie de refresh (Schemeful Same-Site). A correção foi igualar os esquemas (HTTPS nos dois lados em dev), preservando `Strict` — mais protegido contra CSRF que relaxar para `None`, que exigiria abrir mão dessa proteção só por uma limitação de ambiente local.
 
 ---
 
@@ -250,7 +252,8 @@ src/
 │   └── orderStatus.tsx    # ORDER_STATUS — mapa de status para ícone, cor e i18nKey
 │
 ├── context/
-│   └── AuthContext.tsx    # token + user + isLoaded + login/logout
+│   ├── AuthContext.tsx    # AuthProvider — token (memória) + user + isLoaded + login/logout
+│   └── useAuth.ts         # hook de consumo, separado por exigência do Fast Refresh
 │
 ├── hooks/
 │   ├── useViaCep.ts            # debounce 600ms + auto-fill de endereço
@@ -266,6 +269,8 @@ src/
 │
 ├── lib/
 │   ├── correlationId.ts   # gera UUID v4 por requisição (X-Correlation-Id)
+│   ├── navigation.ts      # ponte para useNavigate fora da árvore React
+│   ├── tokenStore.ts      # access token em memória, fora do React
 │   ├── queryClient.ts     # QueryClient + queryKeys centralizados
 │   └── schemas.ts         # loginSchema, registerSchema, orderSchema (Zod)
 │
@@ -278,7 +283,8 @@ src/
 │   └── NotificationsPage.tsx  # log de notificações + marcar como lida
 │
 ├── types/
-│   └── index.ts           # OrderStatus, NotificationType, Order, AppNotification
+│   ├── index.ts           # OrderStatus, NotificationType, Order, AppNotification
+│   └── dtos.ts            # UserDto, LoginResponseDto — contratos de resposta da API
 │
 └── styles/
     └── tokens.css         # @theme — tokens de cor e tipografia (fonte da verdade Tailwind v4)
@@ -344,9 +350,10 @@ Dependências externas (`fetch`, `@microsoft/signalr`, `@tanstack/react-query`, 
 ### Autenticação
 
 - Cadastro e login com validação via Zod
-- Sessão persistida em `localStorage` com rehydration automática
-- Redirecionamento automático em rotas protegidas (`ProtectedRoute`) e públicas (`PublicRoute`)
-- Logout com limpeza de sessão e redirecionamento
+- Access Token em memória, renovado automaticamente via Refresh Token (cookie `httpOnly`) — sessão sobrevive a reload da página sem expor token a XSS
+- Fila de deduplicação de refresh: requisições simultâneas que expiram ao mesmo tempo compartilham uma única chamada de renovação
+- Redirecionamento automático em rotas protegidas (`ProtectedRoute`) e públicas (`PublicRoute`), preservando a rota de origem para retorno pós-login
+- Logout avisa o backend (invalida o Refresh Token) antes de limpar o estado local
 
 ### Pedidos
 
@@ -408,7 +415,6 @@ if (isNetworkOrServerError) {
 
 | Item                                        | Motivo                                                                                                                     |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Refresh token**                           | Backend não implementa — expiração tratada via `401` no interceptor. Technical debt documentado                            |
 | **Formatação de datas com locale dinâmico** | Requer `date-fns` + locale dinâmico vinculado ao i18n ativo. `toLocaleString('pt-BR')` como solução provisória             |
 | **`orderNumber` nas notificações**          | Payload atual tem `orderId` mas não o número legível. Exigiria mudança no contrato da API ou request extra por notificação |
 | **Toast de notificações configurável**      | Hoje é global para todos os usuários. Configuração por usuário ou perfil é evolução natural                                |
@@ -453,7 +459,7 @@ Web client for the **TechsysLog** order and delivery management system, built as
 
 The application follows a clear separation of concerns: **API layer** (Axios client with JWT interceptors + typed services), **state layer** (TanStack Query for server state, React Context for auth), **real-time layer** (`useSignalR` hook mounted at layout level), and **UI layer** (pages + reusable components with Tailwind inline styles).
 
-Key decisions: Tailwind v4 with CSS-first token configuration (`@theme` in `tokens.css`); `const` objects over TypeScript native enums (no runtime overhead, direct API contract alignment); SignalR as a cache invalidation signal rather than a data source (REST remains the source of truth); `NotificationType` field for i18n mapping instead of consuming raw backend messages in English.
+Key decisions: Tailwind v4 with CSS-first token configuration (`@theme` in `tokens.css`); `const` objects over TypeScript native enums; SignalR as a cache invalidation signal rather than a data source; in-memory access token with httpOnly-cookie refresh flow instead of localStorage, avoiding XSS exposure while surviving page reloads via silent refresh on mount.
 
 ### Backend
 
