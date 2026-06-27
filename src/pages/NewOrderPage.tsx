@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { apiClient } from '@/api/client'
 import { queryKeys } from '@/lib/queryClient'
 import { queryClient } from '@/lib/queryClient'
 import { useViaCep } from '@/hooks/useViaCep'
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { orderSchema, type OrderFormData } from '@/lib/schemas'
 import { useTranslation } from 'react-i18next'
+import { ordersService } from '@/api/services'
 
 export function NewOrderPage() {
   const { t } = useTranslation()
@@ -46,9 +46,9 @@ export function NewOrderPage() {
   }, [result, setValue])
 
   const mutation = useMutation({
-    mutationFn: async (data: OrderFormData) => {
+    mutationFn: (data: OrderFormData) => {
       const cleanedZip = data.zipCode.replace(/\D/g, '')
-      const { data: order } = await apiClient.post('/api/Orders', {
+      return ordersService.create({
         description: data.description,
         amount: data.amount,
         deliveryAddress: {
@@ -60,7 +60,6 @@ export function NewOrderPage() {
           state: data.state,
         },
       })
-      return order
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.orders.all })

@@ -1,4 +1,5 @@
 import type { AppNotification, Order } from '@/types'
+import type { CreateOrderRequestDto } from '@/types/dtos'
 import { apiClient } from './client'
 
 export const authService = {
@@ -31,6 +32,17 @@ export const ordersService = {
   getById: async (id: string): Promise<Order> => {
     const { data } = await apiClient.get(`/api/Orders/${id}`)
     return data
+  },
+
+  create: async (data: CreateOrderRequestDto): Promise<Order> => {
+    const { data: order } = await apiClient.post<Order>('/api/Orders', data)
+    return order
+  },
+}
+
+export const deliveriesService = {
+  register: async (orderId: string): Promise<void> => {
+    await apiClient.post('/api/Deliveries', { orderId })
   },
 }
 

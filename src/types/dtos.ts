@@ -1,3 +1,5 @@
+import type { Address } from '.'
+
 export interface UserDto {
   id: string
   name: string
@@ -7,4 +9,10 @@ export interface UserDto {
 export interface LoginResponseDto {
   token: string
   user: UserDto
+}
+
+export interface CreateOrderRequestDto {
+  description: string
+  amount: number
+  deliveryAddress: Address
 }
