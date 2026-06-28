@@ -27,7 +27,7 @@ export function LoginPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: LoginFormData) => authService.login(data.email, data.password),
+    mutationFn: async (data: LoginFormData) => authService.login(data.email, data.password),
     onSuccess: (response) => {
       login(response.token, {
         id: response.user.id,
@@ -35,7 +35,7 @@ export function LoginPage() {
         email: response.user.email,
       })
       toast.success(t('auth.loginSuccess'))
-      navigate(from)
+      void navigate(from)
     },
     onError: () => {
       toast.error(t('auth.loginError'))
@@ -52,7 +52,13 @@ export function LoginPage() {
         <div className="bg-surface-card border-surface-border rounded-lg border p-8">
           <h1 className="text-content-primary mb-6 text-lg font-semibold">{t('auth.signIn')}</h1>
 
-          <form onSubmit={handleSubmit((data) => mutation.mutate(data))} noValidate className="flex flex-col gap-4">
+          <form
+            onSubmit={(e) => {
+              void handleSubmit((data) => mutation.mutate(data))(e)
+            }}
+            noValidate
+            className="flex flex-col gap-4"
+          >
             <Input
               label={t('auth.email')}
               type="email"

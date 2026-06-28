@@ -46,7 +46,7 @@ export function NewOrderPage() {
   }, [result, setValue])
 
   const mutation = useMutation({
-    mutationFn: (data: OrderFormData) => {
+    mutationFn: async (data: OrderFormData) => {
       const cleanedZip = data.zipCode.replace(/\D/g, '')
       return ordersService.create({
         description: data.description,
@@ -62,9 +62,9 @@ export function NewOrderPage() {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all })
       toast.success(t('orders.createSuccess'))
-      navigate('/')
+      void navigate('/')
     },
     onError: () => {
       toast.error(t('orders.createError'))
@@ -77,7 +77,13 @@ export function NewOrderPage() {
         <h1 className="text-content-primary text-xl font-semibold">{t('orders.newOrder')}</h1>
       </div>
 
-      <form noValidate onSubmit={handleSubmit((data) => mutation.mutate(data))} className="flex flex-col gap-6">
+      <form
+        noValidate
+        onSubmit={(e) => {
+          void handleSubmit((data) => mutation.mutate(data))(e)
+        }}
+        className="flex flex-col gap-6"
+      >
         {/* Order data */}
         <div className="bg-surface-card border-surface-border flex flex-col gap-4 rounded-lg border p-6">
           <h2 className="text-content-secondary text-sm font-medium">{t('orders.orderDetails')}</h2>
@@ -129,7 +135,13 @@ export function NewOrderPage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" type="button" onClick={() => navigate('/')}>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => {
+              void navigate('/')
+            }}
+          >
             {t('common.cancel')}
           </Button>
           <Button type="submit" loading={mutation.isPending}>
