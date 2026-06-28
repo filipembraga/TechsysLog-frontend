@@ -33,20 +33,20 @@ export function useSignalR() {
       .build()
 
     connection.on('ReceiveNotification', (notification: AppNotification) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
 
       const i18nKey = NOTIFICATION_I18N[notification.type]
       toast.info(t(i18nKey))
     })
 
-    connection.start().catch(() => {
+    void connection.start().catch(() => {
       toast.error(t('notifications.connectionError'))
     })
 
     // Cleanup on unmount — closes connection on logout
     return () => {
-      connection.stop()
+      void connection.stop()
     }
   }, [token, queryClient])
 }
