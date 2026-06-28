@@ -1,7 +1,8 @@
 import { generateCorrelationId } from '@/lib/correlationId'
 import { navigateTo } from '@/lib/navigation'
 import { getAccessToken, setAccessToken } from '@/lib/tokenStore'
-import axios from 'axios'
+import type { ApiErrorResponseDto, LoginResponseDto } from '@/types/dtos'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { t } from 'i18next'
 import { toast } from 'sonner'
 
@@ -16,7 +17,7 @@ let refreshPromise: Promise<string> | null = null
 async function refreshAccessToken(): Promise<string> {
   if (!refreshPromise) {
     refreshPromise = apiClient
-      .post('/api/auth/refresh')
+      .post<LoginResponseDto>('/api/auth/refresh')
       .then((response) => {
         const newToken = response.data.token
         setAccessToken(newToken)
@@ -30,7 +31,7 @@ async function refreshAccessToken(): Promise<string> {
   return refreshPromise
 }
 
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   config.headers['X-Correlation-Id'] = generateCorrelationId()
   const token = getAccessToken()
 
@@ -44,9 +45,11 @@ apiClient.interceptors.request.use((config) => {
 // Handles API errors globally
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const correlationId = error.response?.headers['x-correlation-id'] ?? error.config?.headers['X-Correlation-Id']
-
+  async (error: AxiosError<ApiErrorResponseDto>) => {
+    const correlationId =
+      (error.response?.headers['x-correlation-id'] as string | undefined) ??
+      (error.config?.headers['X-Correlation-Id'] as string | undefined) ??
+      'unknown'
     const isNetworkOrServerError = !error.response || error.response.status >= 500
 
     if (isNetworkOrServerError) {
@@ -58,7 +61,7 @@ apiClient.interceptors.response.use(
         action: {
           label: t('errors.copyId'),
           onClick: () => {
-            navigator.clipboard.writeText(correlationId)
+            void navigator.clipboard.writeText(correlationId)
             toast.success(t('errors.copied'))
           },
         },
@@ -67,7 +70,7 @@ apiClient.interceptors.response.use(
 
     const isAuthEndpoint = error.config?.url?.toLowerCase().includes('/api/auth/')
 
-    if (error.response?.status === 401 && !isAuthEndpoint) {
+    if (error.response?.status === 401 && !isAuthEndpoint && error.config) {
       try {
         const newToken = await refreshAccessToken()
         error.config.headers.Authorization = `Bearer ${newToken}`
@@ -78,6 +81,6 @@ apiClient.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error)
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)))
   },
 )

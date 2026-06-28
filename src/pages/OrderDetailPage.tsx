@@ -15,16 +15,16 @@ export function OrderDetailPage() {
 
   const { data: order, isLoading } = useQuery({
     queryKey: queryKeys.orders.byId(id!),
-    queryFn: () => ordersService.getById(id!),
+    queryFn: async () => ordersService.getById(id!),
   })
 
   const deliveryMutation = useMutation({
-    mutationFn: () => deliveriesService.register(id!),
+    mutationFn: async () => deliveriesService.register(id!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.orders.byId(id!) })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.byId(id!) })
       toast.success(t('orders.deliverySuccess'))
-      navigate('/')
+      void navigate('/')
     },
     onError: () => {
       toast.error(t('orders.deliveryError'))
@@ -49,7 +49,7 @@ export function OrderDetailPage() {
           <StatusBadge status={order.status} />
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => navigate(-1)}>
+          <Button variant="secondary" onClick={() => { void navigate(-1) }}>
             {t('common.back')}
           </Button>
           {canDeliver && (

@@ -8,7 +8,7 @@ export function setNavigate(navigate: NavigateFunction) {
 
 export function navigateTo(path: string, options?: NavigateOptions) {
   if (navigateRef) {
-    navigateRef(path, options)
+    void navigateRef(path, options)
   } else {
     window.location.href = path
   }

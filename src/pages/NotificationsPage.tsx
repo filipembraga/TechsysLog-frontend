@@ -6,16 +6,19 @@ import { notificationsService } from '@/api/services'
 import { queryClient, queryKeys } from '@/lib/queryClient'
 import { NotificationType, type AppNotification } from '@/types'
 
-const NOTIFICATION_CONFIG: Record<NotificationType, {
-  icon: React.ReactElement
-  i18nKey: string
-}> = {
+const NOTIFICATION_CONFIG: Record<
+  NotificationType,
+  {
+    icon: React.ReactElement
+    i18nKey: string
+  }
+> = {
   [NotificationType.OrderRegistered]: {
-    icon:    <PackagePlus className="w-4 h-4" />,
+    icon: <PackagePlus className="h-4 w-4" />,
     i18nKey: 'notifications.orderRegistered',
   },
   [NotificationType.OrderDelivered]: {
-    icon:    <PackageCheck className="w-4 h-4" />,
+    icon: <PackageCheck className="h-4 w-4" />,
     i18nKey: 'notifications.orderDelivered',
   },
 }
@@ -26,14 +29,14 @@ export function NotificationsPage() {
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: queryKeys.notifications.all,
-    queryFn:  notificationsService.getAll,
+    queryFn: notificationsService.getAll,
   })
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id: string) => notificationsService.markAsRead(id),
+    mutationFn: async (id: string) => notificationsService.markAsRead(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unread })
     },
   })
 
@@ -41,7 +44,7 @@ export function NotificationsPage() {
     if (!notification.isRead) {
       markAsReadMutation.mutate(notification.id)
     }
-    navigate(`/orders/${notification.orderId}`)
+    void navigate(`/orders/${notification.orderId}`)
   }
 
   if (isLoading) {
@@ -50,13 +53,13 @@ export function NotificationsPage() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-content-primary">{t('notifications.title')}</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-content-primary text-xl font-semibold">{t('notifications.title')}</h1>
       </div>
 
-      <div className="bg-surface-card border border-surface-border rounded-lg overflow-hidden">
+      <div className="bg-surface-card border-surface-border overflow-hidden rounded-lg border">
         {notifications.length === 0 ? (
-          <p className="text-center text-content-muted py-12">{t('notifications.noData')}</p>
+          <p className="text-content-muted py-12 text-center">{t('notifications.noData')}</p>
         ) : (
           <ul>
             {notifications.map((notification) => {
@@ -66,7 +69,7 @@ export function NotificationsPage() {
                 <li
                   key={notification.id}
                   onClick={() => handleClick(notification)}
-                  className={`flex items-start gap-4 px-6 py-4 border-b border-surface-border last:border-0 cursor-pointer transition-colors hover:bg-surface-elevated ${
+                  className={`border-surface-border hover:bg-surface-elevated flex cursor-pointer items-start gap-4 border-b px-6 py-4 transition-colors last:border-0 ${
                     !notification.isRead ? 'bg-brand-muted' : ''
                   }`}
                 >
@@ -74,26 +77,26 @@ export function NotificationsPage() {
                     {config.icon}
                   </span>
 
-                  <div className="flex-1 flex flex-col gap-1">
-                    <p className={`text-sm ${!notification.isRead ? 'text-content-primary font-medium' : 'text-content-secondary'}`}>
+                  <div className="flex flex-1 flex-col gap-1">
+                    <p
+                      className={`text-sm ${!notification.isRead ? 'text-content-primary font-medium' : 'text-content-secondary'}`}
+                    >
                       {t(config.i18nKey)}
                     </p>
 
                     <div className="flex gap-4">
-                      <span className="text-xs text-content-muted">
+                      <span className="text-content-muted text-xs">
                         {new Date(notification.createdAt).toLocaleString('pt-BR')}
                       </span>
                       {notification.isRead && notification.readAt && (
-                        <span className="text-xs text-content-muted">
+                        <span className="text-content-muted text-xs">
                           {t('notifications.markAsRead')}: {new Date(notification.readAt).toLocaleString('pt-BR')}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {!notification.isRead && (
-                    <span className="mt-1.5 w-2 h-2 rounded-full bg-brand-light shrink-0" />
-                  )}
+                  {!notification.isRead && <span className="bg-brand-light mt-1.5 h-2 w-2 shrink-0 rounded-full" />}
                 </li>
               )
             })}

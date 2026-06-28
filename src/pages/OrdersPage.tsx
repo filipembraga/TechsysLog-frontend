@@ -42,7 +42,13 @@ export function OrdersPage() {
     <div className="p-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-content-primary text-xl font-semibold">{t('orders.title')}</h1>
-        <Button onClick={() => navigate('/orders/new')}>{t('orders.newOrder')}</Button>
+        <Button
+          onClick={() => {
+            void navigate('/orders/new')
+          }}
+        >
+          {t('orders.newOrder')}
+        </Button>
       </div>
 
       <div className="mb-4 flex gap-3">
@@ -84,7 +90,9 @@ export function OrdersPage() {
             {filteredOrders.map((order: Order) => (
               <tr
                 key={order.id}
-                onClick={() => navigate(`/orders/${order.id}`)}
+                onClick={() => {
+                  void navigate(`/orders/${order.id}`)
+                }}
                 className="border-surface-border hover:bg-surface-elevated cursor-pointer border-b transition-colors last:border-0"
               >
                 <td className="text-brand-light px-4 py-3 font-mono">{order.orderNumber}</td>

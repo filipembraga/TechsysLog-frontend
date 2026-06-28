@@ -18,8 +18,7 @@ export function AppLayout() {
   })
 
   const unreadCount = unread.length
-  const badgeLabel =
-    unreadCount > BADGE_LIMIT ? `${BADGE_LIMIT}+` : String(unreadCount)
+  const badgeLabel = unreadCount > BADGE_LIMIT ? `${BADGE_LIMIT}+` : String(unreadCount)
   const badgeUrgent = unreadCount > BADGE_LIMIT
 
   const { t } = useTranslation()
@@ -28,16 +27,14 @@ export function AppLayout() {
 
   async function handleLogout() {
     await logout()
-    navigate('/login')
+    await navigate('/login')
   }
 
   return (
     <div className="flex h-screen flex-row overflow-hidden">
       <aside className="bg-surface-elevated sticky flex h-screen w-56 shrink-0 flex-col py-4">
         <div className="flex flex-col gap-6">
-          <span className="text-content-primary px-4 font-mono text-lg font-bold">
-            TechsysLog
-          </span>
+          <span className="text-content-primary px-4 font-mono text-lg font-bold">TechsysLog</span>
           <nav>
             <ul className="flex flex-col gap-1">
               <li>
@@ -70,9 +67,7 @@ export function AppLayout() {
                   {unreadCount > 0 && (
                     <span
                       className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                        badgeUrgent
-                          ? 'bg-feedback-error text-white'
-                          : 'bg-brand-light text-white'
+                        badgeUrgent ? 'bg-feedback-error text-white' : 'bg-brand-light text-white'
                       }`}
                     >
                       {badgeLabel}

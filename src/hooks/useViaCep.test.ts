@@ -38,7 +38,7 @@ describe('useViaCep', () => {
 
   test('returns address data on successful lookup', async () => {
     ;(fetch as Mock).mockResolvedValue({
-      json: async () => ({
+      json: () => ({
         logradouro: 'Rua Conde de Bonfim',
         bairro: 'Tijuca',
         localidade: 'Rio de Janeiro',

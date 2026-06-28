@@ -5,6 +5,9 @@ export interface UserDto {
   name: string
   email: string
 }
+export interface UserResponseDto extends UserDto {
+  createdAt: string
+}
 
 export interface LoginResponseDto {
   token: string
@@ -15,4 +18,9 @@ export interface CreateOrderRequestDto {
   description: string
   amount: number
   deliveryAddress: Address
+}
+
+export interface ApiErrorResponseDto {
+  statusCode: number
+  message: string
 }
