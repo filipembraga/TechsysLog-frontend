@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -8,24 +9,26 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', loading, children, disabled, className, ...props }, ref) => {
+  ({ variant = 'primary', loading, children, disabled, className, ...props }) => {
     return (
       <button
+        disabled={disabled || loading}
         className={twMerge(
-          'inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
-          variant === 'primary' && 'bg-brand text-white hover:bg-brand-hover',
-          variant === 'secondary' && 'bg-surface-elevated text-content-primary border border-surface-border hover:bg-surface-card',
+          'inline-flex items-center justify-center gap-2 rounded px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+          variant === 'primary' && 'bg-brand hover:bg-brand-hover text-white',
+          variant === 'secondary' &&
+            'bg-surface-elevated text-content-primary border-surface-border hover:bg-surface-card border',
           variant === 'ghost' && 'text-content-secondary hover:text-content-primary hover:bg-surface-elevated',
           variant === 'danger' && 'bg-feedback-error text-white hover:bg-red-700',
-          className
+          className,
         )}
         {...props}
       >
+        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         {children}
       </button>
     )
-  }
+  },
 )
 
-Button.displayName = 'Button'
 export { Button }
