@@ -48,5 +48,5 @@ export function useSignalR() {
     return () => {
       void connection.stop()
     }
-  }, [token, queryClient])
+  }, [token, queryClient, t])
 }

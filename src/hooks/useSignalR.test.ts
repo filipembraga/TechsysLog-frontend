@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import { useSignalR } from './useSignalR'
 import * as signalR from '@microsoft/signalr'
 import { toast } from 'sonner'
-import { NotificationType } from '@/types'
+import { NotificationType, type AppNotification } from '@/types'
 
 const { mockConnection, mockInvalidateQueries, MockHubConnectionBuilderSpy } = vi.hoisted(() => {
   const mockConnection = {
@@ -110,9 +110,9 @@ describe('useSignalR', () => {
       expect(mockConnection.on).toHaveBeenCalledWith('ReceiveNotification', expect.any(Function))
     })
 
-    const callback = mockConnection.on.mock.calls[0][1]
+    const callback = mockConnection.on.mock.calls[0][1] as (notification: AppNotification) => void
 
-    callback({ type: NotificationType.OrderRegistered })
+    callback({ type: NotificationType.OrderRegistered } as AppNotification)
 
     expect(mockInvalidateQueries).toHaveBeenCalledTimes(2)
     expect(toast.info).toHaveBeenCalledWith('notifications.orderRegistered')
