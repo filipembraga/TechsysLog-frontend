@@ -377,6 +377,27 @@ Dependências externas (`fetch`, `@microsoft/signalr`, `@tanstack/react-query`, 
 
 ---
 
+## Qualidade de Tipo — ESLint `recommended-typechecked`
+
+<details>
+<summary>Diagnóstico e correção de 99 violações de tipo (processo completo no PR)</summary>
+
+O projeto adotou `tseslint.configs.recommendedTypeChecked`, que liga o ESLint à inferência real de tipos do TypeScript (diferente do `recommended` padrão, que é puramente sintático). A varredura inicial apontou 99 violações, concentradas em três causas-raiz:
+
+**1. Chamadas Axios sem genérico de tipo** — `apiClient.get/post/patch(url)` sem `<T>` retorna `any`, que se propagava por `services.ts` e por páginas que chamavam o cliente HTTP diretamente. Corrigido tipando cada chamada com seu DTO de resposta e os interceptors com `AxiosError<ApiErrorResponseDto>`/`InternalAxiosRequestConfig`. Responsável por ~60% das violações.
+
+**2. `useNavigate()` do React Router v7 retornando `Promise<void>`** — a v7 introduziu suporte a transições assíncronas de rota, então `navigate()` pode devolver uma Promise. Todo `onClick`/`onSuccess` que chamava `navigate(...)` sem tratar esse retorno disparava `no-floating-promises` ou `no-misused-promises`. Resolvido com `void navigate(...)`.
+
+**3. `fetch().json()` nativo sem tipagem** — usado no `useViaCep`, sempre retorna `Promise<any>`. Resolvido com uma interface `ViaCepRawResponse` para o shape bruto da API.
+
+**Bug real descoberto no processo:** o componente `Button` usava `forwardRef` sem nenhum consumidor precisando de `ref`, e as props `disabled`/`loading` eram aceitas na interface mas nunca chegavam ao elemento `<button>` — botões "desabilitados" continuavam clicáveis, e o estado de loading não tinha feedback visual. Corrigido junto com a limpeza de tipos.
+
+Resultado: 99 → 0 erros, 1 warning informativo remanescente (`react-hooks/incompatible-library`, sinalizando que o `watch()` do React Hook Form não pode ser memoizado pelo React Compiler — sem ação aplicável).
+
+</details>
+
+---
+
 ## Observabilidade
 
 ### Implementado
