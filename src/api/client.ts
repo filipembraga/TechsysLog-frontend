@@ -7,7 +7,7 @@ import { t } from 'i18next'
 import { toast } from 'sonner'
 
 export const apiClient = axios.create({
-  baseURL: 'https://localhost:7260',
+  baseURL: '',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })

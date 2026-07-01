@@ -11,7 +11,20 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-   },
+    proxy: {
+      '/api': {
+        target: 'https://localhost:7260',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/hubs': {
+        target: 'https://localhost:7260',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
