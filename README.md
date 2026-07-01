@@ -69,7 +69,7 @@ Cliente web para o sistema de gerenciamento de pedidos e entregas da **TechsysLo
 
 Interface web para a empresa de logística **TechsysLog**, que permite cadastrar pedidos, acompanhar status de entregas e receber notificações operacionais em tempo real.
 
-O frontend consome a [TechsysLog API](https://github.com/filipembraga/TechsysLog) via REST e mantém uma conexão persistente com o Hub SignalR para receber eventos sem polling. A aplicação foi construída com foco em experiência operacional B2B — densidade de informação, feedback imediato e navegação eficiente.
+O frontend consome a [TechsysLog API](https://github.com/filipembraga/TechsysLog-api) via REST e mantém uma conexão persistente com o Hub SignalR para receber eventos sem polling. A aplicação foi construída com foco em experiência operacional B2B — densidade de informação, feedback imediato e navegação eficiente.
 
 ---
 
@@ -294,35 +294,29 @@ src/
 
 ## Como Executar
 
-### Pré-requisitos
+### Opção 1 — Docker Compose (recomendado)
+
+O stack completo (frontend + API + MongoDB) sobe via Docker Compose a partir do repositório do backend. Ver instruções em [TechsysLog-api](https://github.com/filipembraga/TechsysLog-api#como-executar).
+
+### Opção 2 — Desenvolvimento local (`npm run dev`)
+
+Para rodar o frontend isoladamente contra o backend em `dotnet run`.
+
+**Pré-requisitos**
 
 - [Node.js 18+](https://nodejs.org)
-- [TechsysLog API](https://github.com/filipembraga/TechsysLog) rodando localmente
+- [TechsysLog API](https://github.com/filipembraga/TechsysLog-api) rodando localmente em `https://localhost:7260`
 
-### Passos
-
-**1. Clonar o repositório**
+**Passos**
 
 ```bash
 git clone https://github.com/filipembraga/TechsysLog-frontend.git
 cd TechsysLog-frontend
-```
-
-**2. Instalar dependências**
-
-```bash
 npm install
-```
-
-**3. Iniciar em desenvolvimento**
-
-```bash
 npm run dev
 ```
 
-A aplicação estará disponível em `http://localhost:3000`.
-
-> O backend deve estar rodando em `https://localhost:7260`. A URL base está configurada em `src/api/client.ts`.
+A aplicação estará disponível em `https://localhost:3000`.
 
 ## Testes
 
@@ -484,9 +478,13 @@ Key decisions: Tailwind v4 with CSS-first token configuration (`@theme` in `toke
 
 ### Backend
 
-REST API: [github.com/filipembraga/TechsysLog](https://github.com/filipembraga/TechsysLog) — ASP.NET Core + MongoDB + SignalR
+REST API: [github.com/filipembraga/TechsysLog-api](https://github.com/filipembraga/TechsysLog-api) — ASP.NET Core + MongoDB + SignalR
 
 ### Running
+
+**Docker Compose (recommended)** — runs the full stack. See instructions in [TechsysLog-api](https://github.com/filipembraga/TechsysLog-api#como-executar).
+
+**Local development** — frontend only, against `dotnet run` backend:
 
 ```bash
 git clone https://github.com/filipembraga/TechsysLog-frontend.git
